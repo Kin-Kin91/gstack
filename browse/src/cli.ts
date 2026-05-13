@@ -795,38 +795,7 @@ async function handlePairAgent(state: ServerState, args: string[]): Promise<void
   if (pairData.tunnel_url) {
     serverUrl = pairData.tunnel_url;
   } else if (!localHost) {
-    // No tunnel active. Check if ngrok is available and auto-start.
-    const ngrokAvailable = isNgrokAvailable();
-    if (ngrokAvailable) {
-      console.log('[browse] ngrok detected. Starting tunnel...');
-      try {
-        const tunnelResp = await fetch(`http://127.0.0.1:${state.port}/tunnel/start`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${state.token}` },
-          signal: AbortSignal.timeout(15000),
-        });
-        const tunnelData = await tunnelResp.json() as any;
-        if (tunnelResp.ok && tunnelData.url) {
-          console.log(`[browse] Tunnel active: ${tunnelData.url}\n`);
-          serverUrl = tunnelData.url;
-        } else {
-          console.warn(`[browse] Tunnel failed: ${tunnelData.error || 'unknown error'}`);
-          if (tunnelData.hint) console.warn(`[browse] ${tunnelData.hint}`);
-          console.warn('[browse] Using localhost (same-machine only).\n');
-          serverUrl = pairData.server_url;
-        }
-      } catch (err: any) {
-        console.warn(`[browse] Tunnel failed: ${err.message}`);
-        console.warn('[browse] Using localhost (same-machine only).\n');
-        serverUrl = pairData.server_url;
-      }
-    } else {
-      console.warn('[browse] No tunnel active and ngrok is not installed/configured.');
-      console.warn('[browse] Instructions will use localhost (same-machine only).');
-      console.warn('[browse] For remote agents: install ngrok (https://ngrok.com) and run `ngrok config add-authtoken <TOKEN>`\n');
-      serverUrl = pairData.server_url;
-    }
-  } else {
+    // Tunnel disabled in this build.
     serverUrl = pairData.server_url;
   }
 
